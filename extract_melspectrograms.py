@@ -134,22 +134,22 @@ def graph_spectrogram(spectrogram_second_length, matched_labeled_data, audio_fil
 def generate_spectrogram_tp(i):
     audio_filename = matched_audio_filename_tp[i]
     try:
-        return graph_spectrogram(2, matched_truepositive_labeled_data_unique, audio_filename, 'tp')
+        return graph_spectrogram(2, matched_truepositive_labeled_data, audio_filename, 'tp')
     except:
         pass
 
 num_cores = multiprocessing.cpu_count()
-matched_audio_filename_tp = list(set(matched_truepositive_labeled_data_unique.matched_audio_filename))
+matched_audio_filename_tp = list(set(matched_truepositive_labeled_data.matched_audio_filename))
 spectrogram_tp = Parallel(n_jobs=num_cores)(delayed(generate_spectrogram_tp)(i) for i in range(len(matched_audio_filename_tp)))
 
 ### extract 2-second false_positive mel-spectrograms
 def generate_spectrogram_fp(i):
     audio_filename = matched_audio_filename_fp[i]
     try:
-        return graph_spectrogram(2, matched_falsepositive_labeled_data_unique, audio_filename, 'fp')
+        return graph_spectrogram(2, matched_falsepositive_labeled_data, audio_filename, 'fp')
     except:
         pass
 
 num_cores = multiprocessing.cpu_count()
-matched_audio_filename_fp = list(set(matched_falsepositive_labeled_data_unique.matched_audio_filename))
+matched_audio_filename_fp = list(set(matched_falsepositive_labeled_data.matched_audio_filename))
 spectrogram_fp = Parallel(n_jobs=num_cores)(delayed(generate_spectrogram_fp)(i) for i in range(len(matched_audio_filename_fp)))
