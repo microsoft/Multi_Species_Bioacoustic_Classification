@@ -77,6 +77,9 @@ for index, row in truepositive_labeled_data.iterrows():
 matched_truepositive_labeled_data = truepositive_labeled_data.loc[(~truepositive_labeled_data.matched_audio_filename.str.contains('No Matched Audio'))][['species_id','tod', 'matched_audio_filename','sound_start_second', 'sound_end_second']]
 print("matched true positive data:", matched_truepositive_labeled_data.shape)
 
+matched_truepositive_labeled_data_rare_species_unique = matched_truepositive_labeled_data_rare_species.loc[matched_truepositive_labeled_data_rare_species.matched_audio_filename != 'No Matched Audio'].drop_duplicates().reset_index(drop=True)
+print("matched true positive data Rare Species (no duplicates):", matched_truepositive_labeled_data_rare_species_unique.shape)
+
 falsepositive_labeled_data['matched_audio_filename'] = ''
 falsepositive_labeled_data['sound_start_second'] = 0
 falsepositive_labeled_data['sound_end_second'] = 0
@@ -92,8 +95,11 @@ for index, row in falsepositive_labeled_data.iterrows():
     else:
         falsepositive_labeled_data.loc[index, 'matched_audio_filename'] = 'No Matched Audio'
 
-matched_falsepositive_labeled_data = falsepositive_labeled_data.loc[(~falsepositive_labeled_data.matched_audio_filename.str.contains('No Matched Audio'))]
+matched_falsepositive_labeled_data = falsepositive_labeled_data.loc[(~falsepositive_labeled_data.matched_audio_filename.str.contains('No Matched Audio'))][['species_id','tod', 'matched_audio_filename','sound_start_second', 'sound_end_second']]
 print("matched false positive data:", matched_falsepositive_labeled_data.shape)
+
+matched_falsepositive_labeled_data_rare_species_unique = matched_falsepositive_labeled_data_rare_species.loc[matched_falsepositive_labeled_data_rare_species.matched_audio_filename != 'No Matched Audio'].drop_duplicates().reset_index(drop=True)
+print("matched false positive data Rare Species (no duplicates):", matched_falsepositive_labeled_data_rare_species_unique.shape)
 
 
 #%% Step 3: extract mel-spectrograms from detections
@@ -139,7 +145,7 @@ def generate_spectrogram_tp(i):
         pass
 
 num_cores = multiprocessing.cpu_count()
-matched_audio_filename_tp = list(set(matched_truepositive_labeled_data.matched_audio_filename))
+matched_audio_filename_tp = list(set(matched_truepositive_labeled_data_rare_species_unique.matched_audio_filename))
 spectrogram_tp = Parallel(n_jobs=num_cores)(delayed(generate_spectrogram_tp)(i) for i in range(len(matched_audio_filename_tp)))
 
 ### extract 2-second false_positive mel-spectrograms
@@ -151,5 +157,5 @@ def generate_spectrogram_fp(i):
         pass
 
 num_cores = multiprocessing.cpu_count()
-matched_audio_filename_fp = list(set(matched_falsepositive_labeled_data.matched_audio_filename))
+matched_audio_filename_fp = list(set(matched_falsepositive_labeled_data_rare_species_unique.matched_audio_filename))
 spectrogram_fp = Parallel(n_jobs=num_cores)(delayed(generate_spectrogram_fp)(i) for i in range(len(matched_audio_filename_fp)))
